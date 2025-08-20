@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Whatsapp copilot",
+  "version": "1.0.0",
+  "description": "Suggest messages for your clients context",
+  "icons": {
+    "48": "images/logo.png",
+    "128": "images/logo.png"
+  },
+  "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "images/logo.png",
+      "128": "images/logo.png"
+    },
+    "default_title": "Click para abrir o painel"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}
