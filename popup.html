@@ -1,13 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
-    <h1>Whatsapp copilot</h1>
-    <form>
-        <input type="text" placeholder="Chave API">
-        <button type="submit">Enviar</button>
-    </form>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        width: 200px;
+        padding: 10px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #25D366;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #128C7E;
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0 0 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>WhatsApp Copilot</h1>
+    <button id="openPanel">Abrir painel</button>
+    
+    <script src="popup.js"></script>
+  </body>
 </html>
