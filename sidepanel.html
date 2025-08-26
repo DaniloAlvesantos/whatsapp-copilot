@@ -86,6 +86,26 @@
       .suggestion-item:hover {
         background-color: #e9ecef;
       }
+      .suggestion-item-skeleton {
+        height: 40px;
+        background-color: #e9ecef;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 0.9;
+        }
+        100% {
+          opacity: 0.6;
+        }
+      }
     </style>
   </head>
   <body>

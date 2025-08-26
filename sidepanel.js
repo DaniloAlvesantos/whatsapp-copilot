@@ -1,70 +1,70 @@
 document.addEventListener("DOMContentLoaded", function () {
   const statusEl = document.getElementById("status");
-  const connectBtn = document.getElementById("connectBtn");
   const suggestionsList = document.getElementById("suggestionsList");
   const currentChatNameEl = document.getElementById("currentChatName");
   const lastMessageEl = document.getElementById("lastMessage");
-
   let isConnected = false;
 
-  // Update connection status
-  function setConnected(connected) {
-    isConnected = connected;
-    if (connected) {
-      statusEl.textContent = "Conectado ao WhatsApp Web ✓";
-      statusEl.className = "status connected";
-      connectBtn.textContent = "Reconectar";
-    } else {
-      statusEl.textContent = "Não conectado ao WhatsApp Web";
-      statusEl.className = "status disconnected";
-      connectBtn.textContent = "Ir para WhatsApp Web";
+  // Renders the suggestions based on the state
+  function renderSuggestions(state) {
+    suggestionsList.innerHTML = ""; // Clear previous suggestions
+
+    if (state.isLoading) {
+      // Render the skeleton loading UI
+      suggestionsList.innerHTML = `
+        <div class="suggestion-item-skeleton"></div>
+        <div class="suggestion-item-skeleton"></div>
+        <div class="suggestion-item-skeleton"></div>
+      `;
+      lastMessageEl.textContent =
+        state.originalMessage || "Generating response...";
+      return;
+    }
+
+    if (state.error) {
+      // Render the error state
+      suggestionsList.innerHTML = `<div class="error-message">${state.error}</div>`;
+      lastMessageEl.textContent = "";
+      return;
+    }
+
+    if (state.suggestions) {
+      // Render the actual suggestions
+      lastMessageEl.textContent = state.originalMessage || "";
+      Object.keys(state.suggestions).forEach((key) => {
+        const suggestionText = state.suggestions[key];
+        const suggestionItem = document.createElement("div");
+        suggestionItem.className = "suggestion-item";
+        suggestionItem.setAttribute("data-message", suggestionText);
+        suggestionItem.textContent = `💬 ${suggestionText}`;
+        suggestionsList.appendChild(suggestionItem);
+      });
     }
   }
 
-  // Check if WhatsApp Web tab is active
-  function checkConnection() {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const activeTab = tabs[0];
-      setConnected(
-        activeTab?.url?.startsWith("https://web.whatsapp.com") || false
-      );
-    });
-  }
-
-  // Render a new suggestion
-  //   function renderEvent(event) {
-  //     if (!event) return;
-
-  //     const suggestionItem = document.createElement("div");
-  //     suggestionItem.className = "suggestion-item";
-
-  //     if (event.type === "NEW_MESSAGE") {
-  //       suggestionItem.setAttribute("data-message", event.data.message.text);
-  //       suggestionItem.textContent = `💬 ${event.data.message.text}`;
-  //     } else if (event.type === "CHAT_CHANGED") {
-  //       suggestionItem.textContent = `📂 Chat changed to: ${event.data.name}`;
-  //     }
-
-  //     suggestionsList.appendChild(suggestionItem);
-  //   }
-
+  // Listen for all changes in chrome.storage.local
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local" && changes.lastWhatsAppEvent) {
-      const event = changes.lastWhatsAppEvent.newValue;
-      if (event.type === "CHAT_CHANGED") {
-        console.log(event)
-        currentChatNameEl.textContent = event.data.name;
-        lastMessageEl.textContent = event.data.lastMessage || "Nenhuma mensagem";
+    if (area === "local") {
+      if (changes.chatInfo && changes.chatInfo.newValue) {
+        currentChatNameEl.textContent = changes.chatInfo.newValue.name;
+      }
+      if (changes.appState && changes.appState.newValue) {
+        renderSuggestions(changes.appState.newValue);
       }
     }
   });
 
-  //   // Load last message if exists
-  //   chrome.storage.local.get("lastWhatsAppEvent", (data) => {
-  //     renderEvent(data.lastWhatsAppEvent);
-  //   });
+  // Initial load of the state
+  chrome.storage.local.get(["appState", "chatInfo"], (data) => {
+    if (data.chatInfo) {
+      currentChatNameEl.textContent = data.chatInfo.name;
+    }
+    if (data.appState) {
+      renderSuggestions(data.appState);
+    }
+  });
 
-  // Handle connect button
+  // Your other UI logic for buttons and clipboard remains the same...
   connectBtn.addEventListener("click", function () {
     if (isConnected) {
       chrome.tabs.query({ url: "https://web.whatsapp.com/*" }, function (tabs) {
@@ -98,7 +98,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Initial check
+  function setConnected(connected) {
+    isConnected = connected;
+    if (connected) {
+      statusEl.textContent = "Conectado ao WhatsApp Web ✓";
+      statusEl.className = "status connected";
+      connectBtn.textContent = "Reconectar";
+    } else {
+      statusEl.textContent = "Não conectado ao WhatsApp Web";
+      statusEl.className = "status disconnected";
+      connectBtn.textContent = "Ir para WhatsApp Web";
+    }
+  }
+
+  function checkConnection() {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      const activeTab = tabs[0];
+      setConnected(
+        activeTab?.url?.startsWith("https://web.whatsapp.com") || false
+      );
+    });
+  }
+
   checkConnection();
   setInterval(checkConnection, 3000);
 });

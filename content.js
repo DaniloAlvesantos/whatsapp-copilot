@@ -37,7 +37,7 @@ function onChatChange() {
 }
 
 function setupChatMonitoring() {
-  const mainContainer = document.querySelector(".x9f619.x1n2onr6.xyw6214");
+  const mainContainer = document.querySelector(".x9f619.x1n2onr6.xupqr0c");
   if (!mainContainer) {
     console.log("Main container not found");
     return;
@@ -50,8 +50,10 @@ function setupChatMonitoring() {
 
   const chatObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-        onChatChange();
+      if (document.querySelector("#main")) {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          onChatChange();
+        }
       }
     });
   });
